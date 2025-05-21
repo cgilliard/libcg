@@ -33,6 +33,28 @@
 		"    ret\n");
 #endif
 
+#ifdef __linux__
+void *syscall_mmap(void *addr, size_t length, int prot, int flags, int fd,
+		   off_t offset) {
+	void *result;
+	__asm__ volatile(
+	    "movq %1, %%rdi\n"	// addr
+	    "movq %2, %%rsi\n"	// length
+	    "movq %3, %%rdx\n"	// prot
+	    "movq %4, %%r10\n"	// flags (use %r10, not %rcx)
+	    "movq %5, %%r8\n"	// fd
+	    "movq %6, %%r9\n"	// offset
+	    "movq $9, %%rax\n"	// syscall ID 9
+	    "syscall\n"
+	    "movq %%rax, %0\n"
+	    : "=r"(result)
+	    : "r"((uint64_t)addr), "r"(length), "r"((uint64_t)prot),
+	      "r"((uint64_t)flags), "r"((uint64_t)fd), "r"((uint64_t)offset)
+	    : "%rax", "%rdi", "%rsi", "%rdx", "%r10", "%r8", "%r9");
+	return result;
+}
+#endif /* __linux */
+
 #define IMPL_WRAPPER(ret_type, name, ...)         \
 	ret_type v = syscall_##name(__VA_ARGS__); \
 	if (v < 0) {                              \
@@ -47,8 +69,10 @@ DECLARE_SYSCALL(ssize_t, write, 1, 4, int fd, const void *buf, size_t length)
 
 DECLARE_SYSCALL(void, exit, 60, 1, int code)
 
+#ifdef __APPLE__
 DECLARE_SYSCALL(void *, mmap, 9, 197, void *addr, size_t length, int prot,
 		int flags, int fd, off_t offset)
+#endif
 
 DECLARE_SYSCALL(int, munmap, 11, 73, void *addr, size_t length)
 
@@ -74,9 +98,7 @@ void exit(int code) {
 
 void *mmap(void *addr, size_t length, int prot, int flags, int fd,
 	   off_t offset) {
-	write(2, "1\n", 2);
 	void *v = syscall_mmap(addr, length, prot, flags, fd, offset);
-	write(2, "2\n", 2);
 	return v;
 }
 

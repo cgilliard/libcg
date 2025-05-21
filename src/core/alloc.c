@@ -182,7 +182,6 @@ STATIC size_t calculate_slab_size(size_t value) {
 }
 
 STATIC void *alloc_slab(size_t slab_size) {
-	write(2, "x\n", 2);
 	Chunk *ptr;
 	size_t max = BITMAP_CAPACITY(slab_size);
 	size_t index = SLAB_INDEX(slab_size);
@@ -190,28 +189,20 @@ STATIC void *alloc_slab(size_t slab_size) {
 
 	/* No slabs of this size yet */
 	if (!ptr) {
-		write(2, "y\n", 2);
 #ifndef NO_SPIN_LOCKS
 		LockGuard lg = lock_write(&__alloc_global_lock);
 #endif /* NO_SPIN_LOCKS */
-		write(2, "z\n", 2);
 
 		/* Check that the pointer is still NULL under lock */
 		if (!__alloc_head_ptrs[index]) {
 			__alloc_head_ptrs[index] =
 			    alloc_aligned_memory(CHUNK_SIZE, CHUNK_SIZE);
-			write(2, "f\n", 2);
 			ptr = __alloc_head_ptrs[index];
 			if (!ptr) return NULL;
-			write(2, "g\n", 2);
-			write_uint64(2, ptr);
-			write_uint64(
-			    2, sizeof(ChunkHeader) + BITMAP_SIZE(slab_size));
 
 			set_bytes((byte *)ptr, 0,
 				  sizeof(ChunkHeader) + BITMAP_SIZE(slab_size));
 
-			write(2, "g1\n", 3);
 			ptr->header.slab_size = slab_size;
 			ptr->header.next = ptr->header.prev = NULL;
 			ptr->header.magic = MAGIC_BYTES;
@@ -220,7 +211,6 @@ STATIC void *alloc_slab(size_t slab_size) {
 #endif /* NO_SPIN_LOCKS */
 
 			SET_BITMAP(ptr, 0);
-			write(2, "h\n", 2);
 			return BITMAP_PTR(ptr, 0, slab_size);
 		}
 	}
@@ -316,7 +306,6 @@ STATIC void free_slab(void *ptr) {
 }
 
 void *cg_malloc(size_t size) {
-	write(2, "a\n", 2);
 	if (size > SIZE_MAX - HEADER_SIZE) {
 		errno = EINVAL;
 		return NULL;
@@ -338,11 +327,9 @@ void *cg_malloc(size_t size) {
 			return (void *)((size_t)ptr + HEADER_SIZE);
 		}
 	}
-	write(2, "b\n", 2);
 }
 
 void cg_free(void *ptr) {
-	write(2, "c\n", 2);
 	void *aligned_ptr = (void *)((size_t)ptr - HEADER_SIZE);
 	if (!ptr) return;
 	if ((size_t)aligned_ptr % CHUNK_SIZE == 0) { /* large alloc */
@@ -356,7 +343,6 @@ void cg_free(void *ptr) {
 	} else { /* slab alloc */
 		free_slab(ptr);
 	}
-	write(2, "d\n", 2);
 }
 
 void *cg_calloc(size_t n, size_t size) {
