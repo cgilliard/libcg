@@ -107,12 +107,10 @@ int munmap(void *addr, size_t length) {
 }
 
 long getpagesize(void) {
-	write(2, "3\n", 2);
 	long v = syscall_getpagesize();
 	if (v < 0) {
 		err = -v;
 		return -1;
 	}
-	write(2, "4\n", 2);
 	return v;
 }
