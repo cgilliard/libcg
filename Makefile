@@ -1,5 +1,5 @@
-CC = clang
-CFLAGS = -fPIC \
+CC      = clang
+CFLAGS  = -fPIC \
 	 -std=c89 \
 	 -pedantic \
 	 -Wall \
@@ -9,10 +9,7 @@ CFLAGS = -fPIC \
 	 -Wno-variadic-macros \
 	 -Wno-c2x-extensions \
 	 -Wno-gnu-zero-variadic-macro-arguments
-LDFLAGS = -O3
-ALLOCFLAGS =
-BENCHFLAGS = -O3 -flto
-TESTFLAGS = -DTEST -g
+LDFLAGS = -shared
 
 # Directories
 OBJDIR  = .obj
@@ -21,26 +18,20 @@ BINDIR  = .
 INCLDIR = src/include
 SRCDIR  = src
 
+SOURCES = $(wildcard $(SRCDIR)/core/*.c)
+OBJECTS = $(patsubst $(SRCDIR)/core/%.c,$(OBJDIR)/%.o,$(SOURCES))
+
 # Default target
 all: $(LIBDIR)/libcg.so
 
-$(OBJDIR)/lock.o: $(INCLDIR)/lock.h $(SRCDIR)/core/lock.c
-	$(CC) -I$(INCLDIR) $(CFLAGS) -c $(SRCDIR)/core/lock.c -o $@
-
-$(OBJDIR)/sys.o: $(INCLDIR)/sys.h $(SRCDIR)/core/sys.c
-	$(CC) -I$(INCLDIR) $(CFLAGS) -c $(SRCDIR)/core/sys.c -o $@
-
-$(OBJDIR)/error.o: $(INCLDIR)/error.h $(SRCDIR)/core/error.c
-	$(CC) -I$(INCLDIR) $(CFLAGS) -c $(SRCDIR)/core/error.c -o $@
-
-$(OBJDIR)/misc.o: $(INCLDIR)/misc.h $(SRCDIR)/core/misc.c
-	$(CC) -I$(INCLDIR) $(CFLAGS) -c $(SRCDIR)/core/misc.c -o $@
+$(OBJDIR)/%.o: $(SRCDIR)/core/%.c $(INCLDIR)/%.h
+	$(CC) -I$(INCLDIR) $(CFLAGS) -c $< -o $@
 
 $(OBJDIR)/stubs.o: $(SRCDIR)/core/stubs.c
-	$(CC) -I$(INCLDIR) $(CFLAGS) -c $(SRCDIR)/core/stubs.c -o $@
+	$(CC) -I$(INCLDIR) $(CFLAGS) -c $< -o $@
 
-$(LIBDIR)/libcg.so: $(OBJDIR)/lock.o $(OBJDIR)/sys.o $(OBJDIR)/error.o $(OBJDIR)/misc.o $(OBJDIR)/stubs.o
-	$(CC) $(LDFLAGS) -shared -o $@ $(OBJDIR)/*.o
+$(LIBDIR)/libcg.so: $(OBJECTS) | $(LIBDIR)
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS)
 
 # Clean up
 clean:
