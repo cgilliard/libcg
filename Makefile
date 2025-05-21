@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -fPIC -std=c89 -pedantic -Wall -Wextra -O3 -D_POSIX_C_SOURCE=200809L
+CFLAGS = -fPIC -std=c89 -pedantic -Wall -Wextra -O3 -D_POSIX_C_SOURCE=200809L -Wno-variadic-macros
 LDFLAGS = -O3
 ALLOCFLAGS =
 BENCHFLAGS = -O3 -flto
@@ -18,8 +18,14 @@ all: $(LIBDIR)/libcg.so
 $(OBJDIR)/lock.o: $(INCLDIR)/lock.h $(SRCDIR)/core/lock.c
 	$(CC) -I$(INCLDIR) $(CFLAGS) -c $(SRCDIR)/core/lock.c -o $@
 
-$(LIBDIR)/libcg.so: $(OBJDIR)/lock.o
-	$(CC) $(LDFLAGS) -shared -o $@ $(OBJDIR)/lock.o
+$(OBJDIR)/sys.o: $(INCLDIR)/sys.h $(SRCDIR)/core/sys.c
+	$(CC) -I$(INCLDIR) $(CFLAGS) -c $(SRCDIR)/core/sys.c -o $@
+
+$(OBJDIR)/error.o: $(INCLDIR)/error.h $(SRCDIR)/core/error.c
+	$(CC) -I$(INCLDIR) $(CFLAGS) -c $(SRCDIR)/core/error.c -o $@
+
+$(LIBDIR)/libcg.so: $(OBJDIR)/lock.o $(OBJDIR)/sys.o $(OBJDIR)/error.o
+	$(CC) $(LDFLAGS) -shared -o $@ $(OBJDIR)/*.o
 
 # Clean up
 clean:
