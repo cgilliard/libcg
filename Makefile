@@ -8,6 +8,7 @@ CFLAGS  = -fPIC \
 	 -D_GNU_SOURCE \
 	 -Wno-variadic-macros \
 	 -Wno-long-long \
+	 -fno-stack-protector \
 	 -fno-builtin
 LDFLAGS = -shared
 
