@@ -8,7 +8,6 @@ int sched_yield(void);
 void exit(int);
 void *mmap(void *addr, size_t length, int prot, int flags, int fd,
 	   off_t offset);
-long getpagesize(void);
 int munmap(void *addr, size_t length);
 
 #endif /* _SYS_H__ */

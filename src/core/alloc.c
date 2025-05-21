@@ -24,23 +24,13 @@
  *******************************************************************************/
 
 #include <alloc.h>
-#ifndef NO_SPIN_LOCKS
-#include <lock.h>
-#endif /* NO_SPIN_LOCKS */
 #include <error.h>
+#include <lock.h>
 #include <misc.h>
 #include <sys.h>
 
-/* For mmap/munmap */
+/* For mmap/munmap constants */
 #include <sys/mman.h>
-/* For write, getpagesize */
-// #include <unistd.h>
-/* For exit */
-// #include <stdlib.h>
-/* For error handling */
-// #include <errno.h>
-/* For memset, strlen */
-// #include <string.h>
 #include <types.h>
 
 #define HEADER_SIZE 16
@@ -127,18 +117,14 @@ typedef struct {
 	struct Chunk *next;
 	struct Chunk *prev;
 	uint64_t magic;
-#ifndef NO_SPIN_LOCKS
 	Lock lock;
-#endif /* NO_SPIN_LOCKS */
 } ChunkHeader;
 
 struct Chunk {
 	ChunkHeader header;
 };
 
-#ifndef NO_SPIN_LOCKS
 Lock __alloc_global_lock = LOCK_INIT;
-#endif /* NO_SPIN_LOCKS */
 
 Chunk *__alloc_head_ptrs[MAX_SLAB_PTRS] = {0};
 
@@ -189,9 +175,7 @@ STATIC void *alloc_slab(size_t slab_size) {
 
 	/* No slabs of this size yet */
 	if (!ptr) {
-#ifndef NO_SPIN_LOCKS
 		LockGuard lg = lock_write(&__alloc_global_lock);
-#endif /* NO_SPIN_LOCKS */
 
 		/* Check that the pointer is still NULL under lock */
 		if (!__alloc_head_ptrs[index]) {
@@ -206,9 +190,7 @@ STATIC void *alloc_slab(size_t slab_size) {
 			ptr->header.slab_size = slab_size;
 			ptr->header.next = ptr->header.prev = NULL;
 			ptr->header.magic = MAGIC_BYTES;
-#ifndef NO_SPIN_LOCKS
 			ptr->header.lock = LOCK_INIT;
-#endif /* NO_SPIN_LOCKS */
 
 			SET_BITMAP(ptr, 0);
 			return BITMAP_PTR(ptr, 0, slab_size);
@@ -217,9 +199,7 @@ STATIC void *alloc_slab(size_t slab_size) {
 
 	/* Iterate throught the existing chunks */
 	while (ptr) {
-#ifndef NO_SPIN_LOCKS
 		LockGuard lg = lock_write(&ptr->header.lock);
-#endif /* NO_SPIN_LOCKS */
 		size_t bit;
 		NEXT_FREE_BIT(ptr, max, bit);
 		if (bit == (size_t)-1) {
@@ -239,9 +219,7 @@ STATIC void *alloc_slab(size_t slab_size) {
 				tmp->header.next = NULL;
 				tmp->header.slab_size = slab_size;
 				tmp->header.magic = MAGIC_BYTES;
-#ifndef NO_SPIN_LOCKS
 				tmp->header.lock = LOCK_INIT;
-#endif /* NO_SPIN_LOCKS */
 				ptr = tmp;
 			}
 			continue;
@@ -266,9 +244,7 @@ STATIC void free_slab(void *ptr) {
 		panic("Memory corruption: MAGIC not correct. Halting!\n");
 
 	{
-#ifndef NO_SPIN_LOCKS
 		LockGuard lg = lock_write(&chunk->header.lock);
-#endif /* NO_SPIN_LOCKS */
 
 		index = BITMAP_INDEX(ptr, chunk);
 		chunk->header.last_free = index / (sizeof(uint64_t) * 8);
@@ -286,9 +262,7 @@ STATIC void free_slab(void *ptr) {
 		chunk_index = SLAB_INDEX(chunk->header.slab_size);
 
 		{
-#ifndef NO_SPIN_LOCKS
 			LockGuard globallg = lock_write(&__alloc_global_lock);
-#endif /* NO_SPIN_LOCKS */
 			if (__alloc_head_ptrs[chunk_index] == chunk)
 				__alloc_head_ptrs[chunk_index] =
 				    chunk->header.next;
@@ -315,8 +289,9 @@ void *cg_malloc(size_t size) {
 	} else { /* large alloc */
 		void *ptr;
 		size_t aligned_size =
-		    (((HEADER_SIZE + size) + PAGE_SIZE - 1) / PAGE_SIZE) *
-		    PAGE_SIZE;
+		    (((HEADER_SIZE + size) + MIN_ALIGN_SIZE - 1) /
+		     MIN_ALIGN_SIZE) *
+		    MIN_ALIGN_SIZE;
 		ptr = alloc_aligned_memory(aligned_size, CHUNK_SIZE);
 		if (!ptr) /* Could not allocate memory mmap will set errno */
 			return NULL;

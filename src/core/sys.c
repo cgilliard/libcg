@@ -76,8 +76,6 @@ DECLARE_SYSCALL(void *, mmap, 9, 197, void *addr, size_t length, int prot,
 
 DECLARE_SYSCALL(int, munmap, 11, 73, void *addr, size_t length)
 
-DECLARE_SYSCALL(long, getpagesize, 137, 33, void)
-
 int sched_yield(void) {
 	int v = syscall_sched_yield();
 	if (v < 0) {
@@ -106,11 +104,3 @@ int munmap(void *addr, size_t length) {
 	IMPL_WRAPPER(int, munmap, addr, length)
 }
 
-long getpagesize(void) {
-	long v = syscall_getpagesize();
-	if (v < 0) {
-		err = -v;
-		return -1;
-	}
-	return v;
-}

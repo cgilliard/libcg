@@ -29,15 +29,6 @@
 #include <sys.h>
 #include <types.h>
 
-/* To optimize this it's suggested to compile with -DPAGE_SIZE=VALUE. This
- * avoids the system from having to invoke the system call each time it needs
- * this value. It's important you get the actual page size of the system correct
- * or behavior is undefined. */
-#ifndef PAGE_SIZE
-// #define PAGE_SIZE (getpagesize())
-#define PAGE_SIZE (4096 * 4)
-#endif /* PAGE_SIZE */
-
 /* Size of chunks. All allocations are aligned to this size. This allows for us
  * to quickly find header info about a particular deallocation. Note: this value
  * must be page aligned or behavior is undefined.
@@ -51,8 +42,10 @@
  * Note: this value must be a power of 2 or behavior is undefined.
  */
 #ifndef MAX_SLAB_SIZE
-#define MAX_SLAB_SIZE 2048
+#define MAX_SLAB_SIZE 32768
 #endif /* MAX_SLAB_SIZE */
+
+#define MIN_ALIGN_SIZE (4096 * 4)
 
 /* malloc implementation */
 void *cg_malloc(size_t size);
