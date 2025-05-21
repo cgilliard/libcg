@@ -129,7 +129,11 @@ typedef unsigned long uint64_t;
 /* Begin sys/types defs */
 typedef unsigned long size_t;
 typedef long ssize_t;
+#ifdef __linux__
+typedef long off_t;
+#else
 typedef long long off_t;
+#endif
 
 /* to use sys/types, comment out above and uncomment below */
 /* #include <sys/types.h> */
