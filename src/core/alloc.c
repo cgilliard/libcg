@@ -184,7 +184,7 @@ STATIC void *alloc_slab(size_t slab_size) {
 			ptr = __alloc_head_ptrs[index];
 			if (!ptr) return NULL;
 
-			set_bytes((byte *)ptr, 0,
+			memset(ptr, 0,
 				  sizeof(ChunkHeader) + BITMAP_SIZE(slab_size));
 
 			ptr->header.slab_size = slab_size;

@@ -6,11 +6,6 @@ void copy_bytes(byte *dst, const byte *src, size_t n) {
 	while (n--) *dst++ = *src++;
 }
 
-void set_bytes(byte *X, byte x, size_t y) {
-	if (X == NULL || y == 0) return;
-	while (y--) *X++ = x;
-}
-
 size_t strlen(const char *X) {
 	const char *Y;
 	if (X == NULL) return 0;
@@ -63,19 +58,24 @@ const char *cstring_strstr(const char *X, const char *Y) {
 	return NULL;
 }
 
-/*
-void *memset(void *ptr, int x, size_t n) {
-	set_bytes(ptr, x, n);
-	return ptr;
-}
-*/
-
-void *memcpy(void *dst, const void *src, size_t n) {
-	copy_bytes((byte *)dst, (const byte *)src, n);
-	return dst;
+void *memset(void *dest, int c, size_t n) {
+	size_t i;
+	unsigned char *s = dest;
+	for (i = 0; i < n; i++) {
+		s[i] = (unsigned char)c;
+	}
+	return dest;
 }
 
-void bzero(void *dst, size_t n) { set_bytes((byte *)dst, 0, n); }
+void *memcpy(void *dest, const void *src, size_t n) {
+	size_t i;
+	unsigned char *d = dest;
+	const unsigned char *s = src;
+	for (i = 0; i < n; i++) {
+		d[i] = s[i];
+	}
+	return dest;
+}
 
 void write_uint64(int fd, uint64_t num) {
 	char buf[32];
