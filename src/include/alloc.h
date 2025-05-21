@@ -48,12 +48,10 @@
 #define MIN_ALIGN_SIZE (4096 * 4)
 
 /* malloc implementation */
-void *cg_malloc(size_t size);
+void *alloc(size_t size);
 /* free implementation */
-void cg_free(void *ptr);
-/* calloc implementation */
-void *cg_calloc(size_t n, size_t size);
+void release(void *ptr);
 /* realloc implementation */
-void *cg_realloc(void *ptr, size_t size);
+void *resize(void *ptr, size_t size);
 
 #endif /* _ALLOC_H__ */

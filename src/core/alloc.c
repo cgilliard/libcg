@@ -185,7 +185,7 @@ STATIC void *alloc_slab(size_t slab_size) {
 			if (!ptr) return NULL;
 
 			memset(ptr, 0,
-				  sizeof(ChunkHeader) + BITMAP_SIZE(slab_size));
+			       sizeof(ChunkHeader) + BITMAP_SIZE(slab_size));
 
 			ptr->header.slab_size = slab_size;
 			ptr->header.next = ptr->header.prev = NULL;
@@ -279,7 +279,7 @@ STATIC void free_slab(void *ptr) {
 	munmap(chunk, CHUNK_SIZE);
 }
 
-void *cg_malloc(size_t size) {
+void *alloc(size_t size) {
 	if (size > SIZE_MAX - HEADER_SIZE) {
 		errno = EINVAL;
 		return NULL;
@@ -304,7 +304,7 @@ void *cg_malloc(size_t size) {
 	}
 }
 
-void cg_free(void *ptr) {
+void release(void *ptr) {
 	void *aligned_ptr = (void *)((size_t)ptr - HEADER_SIZE);
 	if (!ptr) return;
 	if ((size_t)aligned_ptr % CHUNK_SIZE == 0) { /* large alloc */
@@ -320,25 +320,7 @@ void cg_free(void *ptr) {
 	}
 }
 
-void *cg_calloc(size_t n, size_t size) {
-	size_t total_size;
-	void *ptr;
-
-	if (n == 0 || size == 0) return NULL;
-	if (n > (SIZE_MAX / size)) {
-		errno = ENOMEM;
-		return NULL;
-	}
-	total_size = n * size;
-	ptr = cg_malloc(total_size);
-	if (ptr == NULL) return NULL;
-	/* Memset is not needed for larger allocations because we use mmap.
-	 * It's only needed for slabs. */
-	if (total_size <= MAX_SLAB_SIZE) memset(ptr, 0, total_size);
-	return ptr;
-}
-
-void *cg_realloc(void *ptr, size_t size) {
+void *resize(void *ptr, size_t size) {
 	void *new_ptr;
 	void *aligned_ptr;
 	Chunk *chunk;
@@ -347,11 +329,11 @@ void *cg_realloc(void *ptr, size_t size) {
 	int is_mmap;
 
 	if (ptr == NULL) {
-		return cg_malloc(size);
+		return alloc(size);
 	}
 
 	if (size == 0) {
-		cg_free(ptr);
+		release(ptr);
 		return NULL;
 	}
 
@@ -389,7 +371,7 @@ void *cg_realloc(void *ptr, size_t size) {
 	}
 
 	/* Allocate new memory */
-	new_ptr = cg_malloc(size);
+	new_ptr = alloc(size);
 	if (new_ptr == NULL) {
 		errno = ENOMEM;
 		return NULL; /* Original ptr remains valid */
@@ -400,16 +382,8 @@ void *cg_realloc(void *ptr, size_t size) {
 	memcpy(new_ptr, ptr, copy_size);
 
 	/* Free old memory */
-	cg_free(ptr);
+	release(ptr);
 
 	return new_ptr;
 }
 
-void *malloc(size_t size) { return cg_malloc(size); }
-void free(void *ptr) { cg_free(ptr); }
-void *calloc(size_t n, size_t size) { return cg_calloc(n, size); }
-void *realloc(void *ptr, size_t size) { return cg_realloc(ptr, size); }
-void *__wrap_malloc(size_t size) { return cg_malloc(size); }
-void __wrap_free(void *ptr) { cg_free(ptr); }
-void *__wrap_calloc(size_t n, size_t size) { return cg_calloc(n, size); }
-void *__wrap_realloc(void *ptr, size_t size) { return cg_realloc(ptr, size); }

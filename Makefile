@@ -7,7 +7,8 @@ CFLAGS  = -fPIC \
 	 -O3 \
 	 -D_GNU_SOURCE \
 	 -Wno-variadic-macros \
-	 -Wno-long-long
+	 -Wno-long-long \
+	 -fno-builtin
 LDFLAGS = -shared
 
 # Directories

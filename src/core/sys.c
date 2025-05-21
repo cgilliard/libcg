@@ -20,16 +20,16 @@
 		"\n"                                               \
 		"_syscall_" #name                                  \
 		":\n"                                              \
-		"    sub sp, sp, #16\n"                            \
-		"    str x30, [sp]\n"                              \
+		"    sub sp, sp, #32\n"                            \
+		"    stp x29, x30, [sp, #16]\n"                    \
 		"    mov x16, #" #macos_num                        \
 		"\n"                                               \
 		"    orr x16, x16, #0x2000000\n"                   \
 		"    svc #0x80\n"                                  \
 		"    b.cc 1f\n"                                    \
 		"    neg x0, x0\n"                                 \
-		"1:  ldr x30, [sp]\n"                              \
-		"    add sp, sp, #16\n"                            \
+		"1:  ldp x29, x30, [sp, #16]\n"                    \
+		"    add sp, sp, #32\n"                            \
 		"    ret\n");
 #endif
 

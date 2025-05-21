@@ -77,6 +77,13 @@ void *memcpy(void *dest, const void *src, size_t n) {
 	return dest;
 }
 
+void bzero(void *s, size_t len) {
+	unsigned char *p = s;
+	while (len--) {
+		*p++ = 0;
+	}
+}
+
 void write_uint64(int fd, uint64_t num) {
 	char buf[32];
 	int i = 0, j;
