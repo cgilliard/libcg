@@ -42,7 +42,7 @@
 
 DECLARE_SYSCALL(int, sched_yield, 24, 158, void)
 
-DECLARE_SYSCALL(ssize_t, write, 1, 4, int fd, void *buf, size_t length)
+DECLARE_SYSCALL(ssize_t, write, 1, 4, int fd, const void *buf, size_t length)
 
 int sched_yield(void) {
 	int v = syscall_sched_yield();
@@ -53,7 +53,7 @@ int sched_yield(void) {
 	return v;
 }
 
-ssize_t write(int fd, void *buf, size_t length) {
+ssize_t write(int fd, const void *buf, size_t length) {
 	IMPL_WRAPPER(ssize_t, write, fd, buf, length)
 }
 

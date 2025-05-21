@@ -3,7 +3,7 @@
 
 extern int err;
 
-typedef enum { Todo = 100000, IndexOutOfBounds } Errors;
+typedef enum { Todo = 100000, IndexOutOfBounds, IllegalArgument } Errors;
 
 const char *error_string(int err_code);
 int perror(const char *);

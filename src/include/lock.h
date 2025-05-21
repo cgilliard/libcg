@@ -26,8 +26,7 @@
 #ifndef _LOCK_H__
 #define _LOCK_H__
 
-/* For uint64_t */
-#include <stdint.h>
+#include <types.h>
 
 typedef uint64_t Lock;
 

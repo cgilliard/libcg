@@ -33,7 +33,13 @@ $(OBJDIR)/sys.o: $(INCLDIR)/sys.h $(SRCDIR)/core/sys.c
 $(OBJDIR)/error.o: $(INCLDIR)/error.h $(SRCDIR)/core/error.c
 	$(CC) -I$(INCLDIR) $(CFLAGS) -c $(SRCDIR)/core/error.c -o $@
 
-$(LIBDIR)/libcg.so: $(OBJDIR)/lock.o $(OBJDIR)/sys.o $(OBJDIR)/error.o
+$(OBJDIR)/misc.o: $(INCLDIR)/misc.h $(SRCDIR)/core/misc.c
+	$(CC) -I$(INCLDIR) $(CFLAGS) -c $(SRCDIR)/core/misc.c -o $@
+
+$(OBJDIR)/stubs.o: $(SRCDIR)/core/stubs.c
+	$(CC) -I$(INCLDIR) $(CFLAGS) -c $(SRCDIR)/core/stubs.c -o $@
+
+$(LIBDIR)/libcg.so: $(OBJDIR)/lock.o $(OBJDIR)/sys.o $(OBJDIR)/error.o $(OBJDIR)/misc.o $(OBJDIR)/stubs.o
 	$(CC) $(LDFLAGS) -shared -o $@ $(OBJDIR)/*.o
 
 # Clean up

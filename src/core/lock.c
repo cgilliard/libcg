@@ -24,9 +24,7 @@
  *******************************************************************************/
 
 #include <lock.h>
-
-/* For sched_yield */
-#include <sched.h>
+#include <sys.h>
 
 #define WFLAG (0x1UL << 63)
 #define WREQUEST (0x1UL << 62)

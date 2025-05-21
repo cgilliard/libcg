@@ -1,19 +1,17 @@
-#include <errno.h>
 #include <error.h>
-/* #include <misc.h> */
+#include <misc.h>
 #include <sys.h>
 
 int err = 0;
 
 int *__error(void) { return &err; }
 
-/*
 int perror(const char *s) {
 	int len = 0, v = 2;
 	const char *err_msg;
 
 	if (s == NULL) {
-		err = EINVAL;
+		err = IllegalArgument;
 		return -1;
 	}
 
@@ -27,7 +25,6 @@ int perror(const char *s) {
 	if (v == 1) return 0;
 	return -1;
 }
-*/
 
 const char *error_string(int err_code) {
 	switch (err_code) {
@@ -297,6 +294,8 @@ const char *error_string(int err_code) {
 			return "Todo";
 		case IndexOutOfBounds:
 			return "Index out of bounds";
+		case IllegalArgument:
+			return "Illegal Argument";
 		default:
 			return "Unknown error";
 	}

@@ -3,7 +3,7 @@
 
 #include <types.h>
 
-ssize_t write(int fd, void *buf, size_t length);
+ssize_t write(int fd, const void *buf, size_t length);
 int sched_yield(void);
 
 #endif /* _SYS_H__ */
