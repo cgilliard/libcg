@@ -4,9 +4,9 @@
 #ifdef __linux__
 #define DECLARE_SYSCALL(ret_type, name, linux_num, macos_num, ...) \
 	ret_type syscall_##name(__VA_ARGS__);                      \
-	__asm__(".global _syscall_" #name                          \
+	__asm__(".global syscall_" #name                           \
 		"\n"                                               \
-		"_syscall_" #name                                  \
+		"syscall_" #name                                   \
 		":\n"                                              \
 		"    movq $" #linux_num                            \
 		", %rax\n"                                         \
