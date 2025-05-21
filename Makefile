@@ -7,8 +7,7 @@ CFLAGS  = -fPIC \
 	 -O3 \
 	 -D_POSIX_C_SOURCE=200809L \
 	 -Wno-variadic-macros \
-	 -Wno-c2x-extensions \
-	 -Wno-gnu-zero-variadic-macro-arguments
+	 -Wno-c2x-extensions
 LDFLAGS = -shared
 
 # Directories
