@@ -1,5 +1,14 @@
 CC = clang
-CFLAGS = -fPIC -std=c89 -pedantic -Wall -Wextra -O3 -D_POSIX_C_SOURCE=200809L -Wno-variadic-macros -Wno-c2x-extensions
+CFLAGS = -fPIC \
+	 -std=c89 \
+	 -pedantic \
+	 -Wall \
+	 -Wextra \
+	 -O3 \
+	 -D_POSIX_C_SOURCE=200809L \
+	 -Wno-variadic-macros \
+	 -Wno-c2x-extensions \
+	 -Wno-gnu-zero-variadic-macro-arguments
 LDFLAGS = -O3
 ALLOCFLAGS =
 BENCHFLAGS = -O3 -flto

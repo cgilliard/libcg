@@ -32,24 +32,21 @@
 		"    ret\n");
 #endif
 
-DECLARE_SYSCALL(int, sched_yield, 24, 158, void)
-
-int sched_yield(void) {
-	int v = syscall_sched_yield();
-	if (v < 0) {
-		err = -v;
-		return -1;
-	}
+#define IMPL_WRAPPER(ret_type, name, ...)                     \
+	ret_type v = syscall_##name(__VA_OPT__(__VA_ARGS__)); \
+	if (v < 0) {                                          \
+		err = -v;                                     \
+		return -1;                                    \
+	}                                                     \
 	return v;
-}
+
+DECLARE_SYSCALL(int, sched_yield, 24, 158, void)
 
 DECLARE_SYSCALL(ssize_t, write, 1, 4, int fd, void *buf, size_t length)
 
+int sched_yield(void){IMPL_WRAPPER(int, sched_yield)}
+
 ssize_t write(int fd, void *buf, size_t length) {
-	ssize_t v = syscall_write(fd, buf, length);
-	if (v < 0) {
-		err = -v;
-		return -1;
-	}
-	return v;
+	IMPL_WRAPPER(ssize_t, write, fd, buf, length)
 }
+
