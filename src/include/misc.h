@@ -1,6 +1,7 @@
 #ifndef _MISC_H__
 #define _MISC_H__
 
+#include <sys.h>
 #include <types.h>
 
 void copy_bytes(byte *dest, const byte *src, size_t n);
@@ -12,5 +13,6 @@ const char *cstring_strstr(const char *X, const char *Y);
 void *memset(void *ptr, int x, size_t n);
 void *memcpy(void *dst, const void *src, size_t n);
 void bzero(void *dst, size_t n);
+void write_uint64(int fd, uint64_t num);
 
 #endif /* _MISC_H__ */

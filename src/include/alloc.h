@@ -34,7 +34,8 @@
  * this value. It's important you get the actual page size of the system correct
  * or behavior is undefined. */
 #ifndef PAGE_SIZE
-#define PAGE_SIZE (getpagesize())
+// #define PAGE_SIZE (getpagesize())
+#define PAGE_SIZE (4096 * 4)
 #endif /* PAGE_SIZE */
 
 /* Size of chunks. All allocations are aligned to this size. This allows for us

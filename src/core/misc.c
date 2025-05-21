@@ -63,10 +63,12 @@ const char *cstring_strstr(const char *X, const char *Y) {
 	return NULL;
 }
 
+/*
 void *memset(void *ptr, int x, size_t n) {
 	set_bytes(ptr, x, n);
 	return ptr;
 }
+*/
 
 void *memcpy(void *dst, const void *src, size_t n) {
 	copy_bytes((byte *)dst, (const byte *)src, n);
@@ -74,3 +76,23 @@ void *memcpy(void *dst, const void *src, size_t n) {
 }
 
 void bzero(void *dst, size_t n) { set_bytes((byte *)dst, 0, n); }
+
+void write_uint64(int fd, uint64_t num) {
+	char buf[32];
+	int i = 0, j;
+
+	do {
+		buf[i++] = '0' + (num % 10);
+		num /= 10;
+	} while (num && i < 31);
+
+	for (j = 0; j < i / 2; j++) {
+		char tmp = buf[j];
+		buf[j] = buf[i - 1 - j];
+		buf[i - 1 - j] = tmp;
+	}
+
+	buf[i++] = '\n';
+
+	write(fd, buf, i);
+}

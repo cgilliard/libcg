@@ -74,7 +74,9 @@ void exit(int code) {
 
 void *mmap(void *addr, size_t length, int prot, int flags, int fd,
 	   off_t offset) {
+	write(2, "1\n", 2);
 	void *v = syscall_mmap(addr, length, prot, flags, fd, offset);
+	write(2, "2\n", 2);
 	return v;
 }
 
@@ -83,10 +85,12 @@ int munmap(void *addr, size_t length) {
 }
 
 long getpagesize(void) {
+	write(2, "3\n", 2);
 	long v = syscall_getpagesize();
 	if (v < 0) {
 		err = -v;
 		return -1;
 	}
+	write(2, "4\n", 2);
 	return v;
 }
