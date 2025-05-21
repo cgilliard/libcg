@@ -5,9 +5,9 @@ CFLAGS  = -fPIC \
 	 -Wall \
 	 -Wextra \
 	 -O3 \
-	 -D_POSIX_C_SOURCE=200809L \
+	 -D_GNU_SOURCE \
 	 -Wno-variadic-macros \
-	 -Wno-c2x-extensions
+	 -Wno-long-long
 LDFLAGS = -shared
 
 # Directories
@@ -24,9 +24,6 @@ OBJECTS = $(patsubst $(SRCDIR)/core/%.c,$(OBJDIR)/%.o,$(SOURCES))
 all: $(LIBDIR)/libcg.so
 
 $(OBJDIR)/%.o: $(SRCDIR)/core/%.c $(INCLDIR)/%.h
-	$(CC) -I$(INCLDIR) $(CFLAGS) -c $< -o $@
-
-$(OBJDIR)/stubs.o: $(SRCDIR)/core/stubs.c
 	$(CC) -I$(INCLDIR) $(CFLAGS) -c $< -o $@
 
 $(LIBDIR)/libcg.so: $(OBJECTS) | $(LIBDIR)

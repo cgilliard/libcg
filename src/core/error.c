@@ -15,11 +15,11 @@ int perror(const char *s) {
 		return -1;
 	}
 
-	len = cstring_len(s);
+	len = strlen(s);
 	if (len) v = write(2, s, len);
 	if (len && v == len) v = write(2, ": ", 2);
 	if (v == 2) err_msg = error_string(err);
-	if (v == 2) len = cstring_len(err_msg);
+	if (v == 2) len = strlen(err_msg);
 	if (v == 2) v = write(2, err_msg, len);
 	if (v == len) v = write(2, "\n", 1);
 	if (v == 1) return 0;

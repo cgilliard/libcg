@@ -11,7 +11,7 @@ void set_bytes(byte *X, byte x, size_t y) {
 	while (y--) *X++ = x;
 }
 
-size_t cstring_len(const char *X) {
+size_t strlen(const char *X) {
 	const char *Y;
 	if (X == NULL) return 0;
 	Y = X;
@@ -62,3 +62,15 @@ const char *cstring_strstr(const char *X, const char *Y) {
 	}
 	return NULL;
 }
+
+void *memset(void *ptr, int x, size_t n) {
+	set_bytes(ptr, x, n);
+	return ptr;
+}
+
+void *memcpy(void *dst, const void *src, size_t n) {
+	copy_bytes((byte *)dst, (const byte *)src, n);
+	return dst;
+}
+
+void bzero(void *dst, size_t n) { set_bytes((byte *)dst, 0, n); }

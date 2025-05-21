@@ -85,6 +85,10 @@
 #define INT128_MAX (((__int128_t)1 << 127) - 1)
 #endif
 
+#ifndef SIZE_MAX
+#define SIZE_MAX UINT64_MAX
+#endif
+
 #ifndef bool
 #define bool byte
 #endif
@@ -125,6 +129,7 @@ typedef unsigned long uint64_t;
 /* Begin sys/types defs */
 typedef unsigned long size_t;
 typedef long ssize_t;
+typedef long long off_t;
 
 /* to use sys/types, comment out above and uncomment below */
 /* #include <sys/types.h> */

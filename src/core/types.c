@@ -1,7 +1,7 @@
+#include <sys.h>
 #include <types.h>
 
 int printf(const char *, ...);
-void exit(int);
 
 #define CheckType(t, exp)                                                 \
 	if (sizeof(t) != exp) {                                           \
