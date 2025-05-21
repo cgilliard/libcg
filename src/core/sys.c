@@ -38,13 +38,13 @@ void *syscall_mmap(void *addr, size_t length, int prot, int flags, int fd,
 		   off_t offset) {
 	void *result;
 	__asm__ volatile(
-	    "movq %1, %%rdi\n"	// addr
-	    "movq %2, %%rsi\n"	// length
-	    "movq %3, %%rdx\n"	// prot
-	    "movq %4, %%r10\n"	// flags (use %r10, not %rcx)
-	    "movq %5, %%r8\n"	// fd
-	    "movq %6, %%r9\n"	// offset
-	    "movq $9, %%rax\n"	// syscall ID 9
+	    "movq %1, %%rdi\n"
+	    "movq %2, %%rsi\n"
+	    "movq %3, %%rdx\n"
+	    "movq %4, %%r10\n"
+	    "movq %5, %%r8\n"
+	    "movq %6, %%r9\n"
+	    "movq $9, %%rax\n"
 	    "syscall\n"
 	    "movq %%rax, %0\n"
 	    : "=r"(result)
