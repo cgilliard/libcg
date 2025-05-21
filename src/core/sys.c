@@ -1,6 +1,38 @@
 #include <error.h>
 #include <types.h>
 
+#ifdef __linux__
+#define DECLARE_SYSCALL(ret_type, name, linux_num, macos_num, ...) \
+	ret_type syscall_##name(__VA_ARGS__);                      \
+	__asm__(".global _syscall_" #name                          \
+		"\n"                                               \
+		"_syscall_" #name                                  \
+		":\n"                                              \
+		"    movq $" #linux_num                            \
+		", %rax\n"                                         \
+		"    syscall\n"                                    \
+		"    ret\n");
+#elif defined(__APPLE__)
+#define DECLARE_SYSCALL(ret_type, name, linux_num, macos_num, ...) \
+	ret_type syscall_##name(__VA_ARGS__);                      \
+	__asm__(".global _syscall_" #name                          \
+		"\n"                                               \
+		"_syscall_" #name                                  \
+		":\n"                                              \
+		"    sub sp, sp, #16\n"                            \
+		"    str x30, [sp]\n"                              \
+		"    mov x16, #" #macos_num                        \
+		"\n"                                               \
+		"    orr x16, x16, #0x2000000\n"                   \
+		"    svc #0x80\n"                                  \
+		"    b.cc 1f\n"                                    \
+		"    neg x0, x0\n"                                 \
+		"1:  ldr x30, [sp]\n"                              \
+		"    add sp, sp, #16\n"                            \
+		"    ret\n");
+#endif
+
+/*
 int syscall_sched_yield(void);
 #ifdef __linux__
 __asm__(
@@ -21,7 +53,9 @@ __asm__(
     "1:  ldr x30, [sp]\n"
     "    add sp, sp, #16\n"
     "    ret\n");
-#endif /* __APPLE__ */
+#endif *//* __APPLE__ */
+
+DECLARE_SYSCALL(int, sched_yield, 24, 158, void)
 
 int sched_yield(void) {
 	int v = syscall_sched_yield();
@@ -32,6 +66,7 @@ int sched_yield(void) {
 	return v;
 }
 
+/*
 ssize_t syscall_write(int fd, void *buf, size_t length);
 #ifdef __linux__
 __asm__(
@@ -52,7 +87,9 @@ __asm__(
     "1:  ldr x30, [sp]\n"
     "    add sp, sp, #16\n"
     "    ret\n");
-#endif /* __APPLE__ */
+#endif *//* __APPLE__ */
+
+DECLARE_SYSCALL(ssize_t, write, 1, 4, int fd, void *buf, size_t length)
 
 ssize_t write(int fd, void *buf, size_t length) {
 	ssize_t v = syscall_write(fd, buf, length);
